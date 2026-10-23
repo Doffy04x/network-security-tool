@@ -54,7 +54,6 @@ La comparaison avec la configuration de départ s'exécute avec `docker compose 
 
 ## Résultats du run de référence
 
-
 Exécution GitHub : https://github.com/Doffy04x/network-security-tool/actions/runs/39955129026
 Commit testé : `738fd453b9f6a3cbaeb95f776804883b6cb4254f`.
 
@@ -71,7 +70,7 @@ Ces nombres comptent les résultats paquet/CVE du rapport, pas nécessairement d
 | --- | --- | --- | --- | --- |
 | libaom3 | 3.6.0-1+deb12u3 | CRITICAL | CVE-2023-6879 | Non disponible |
 | libglib2.0-0 | 2.74.6-2+deb12u9 | CRITICAL | CVE-2026-58016 | Non disponible |
-| libglib2.0-bin | 2.74.6-2+deb12u9 | CRITICAL | CVE-2026-58016 | Non disponible |
+| libexpat1 | 2.5.0-1+deb12u4 | HIGH | CVE-2025-59375 | 2.5.0-1+deb12u5 |
 
 Le passage de Debian complète à Alpine change les paquets installés. La baisse du nombre de résultats montre une réduction de la surface analysée ; elle ne signifie pas que chaque CVE de Debian a été corrigée dans le même paquet. Les mises à jour Alpine disponibles ont aussi été appliquées pendant le build.
 
