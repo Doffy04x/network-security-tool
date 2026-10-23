@@ -51,3 +51,34 @@ La comparaison avec la configuration de départ s'exécute avec `docker compose 
 - [Sécurité Docker](https://docs.docker.com/engine/security/)
 - [Action officielle Trivy](https://github.com/aquasecurity/trivy-action)
 - [Image NGINX unprivileged](https://github.com/nginx/docker-nginx-unprivileged)
+
+## Résultats du run de référence
+
+
+Exécution GitHub : https://github.com/Doffy04x/network-security-tool/actions/runs/39955129026
+Commit testé : `738fd453b9f6a3cbaeb95f776804883b6cb4254f`.
+
+| Configuration API | HIGH | CRITICAL |
+| --- | ---: | ---: |
+| Avant : Python Debian complète | 625 | 30 |
+| Après : Python Alpine durcie | 0 | 0 |
+
+Ces nombres comptent les résultats paquet/CVE du rapport, pas nécessairement des identifiants CVE tous distincts.
+
+### Trois résultats du scan initial
+
+| Composant | Version installée | Gravité | CVE | Version corrigée disponible |
+| --- | --- | --- | --- | --- |
+| libaom3 | 3.6.0-1+deb12u3 | CRITICAL | CVE-2023-6879 | Non disponible |
+| libglib2.0-0 | 2.74.6-2+deb12u9 | CRITICAL | CVE-2026-58016 | Non disponible |
+| libglib2.0-bin | 2.74.6-2+deb12u9 | CRITICAL | CVE-2026-58016 | Non disponible |
+
+Le passage de Debian complète à Alpine change les paquets installés. La baisse du nombre de résultats montre une réduction de la surface analysée ; elle ne signifie pas que chaque CVE de Debian a été corrigée dans le même paquet. Les mises à jour Alpine disponibles ont aussi été appliquées pendant le build.
+
+Le test HTTP passe par NGINX, vérifie un port ouvert dans le conteneur API et contrôle le rejet des paramètres invalides. Les paramètres Docker observés confirment : API UID 10001, NGINX UID 101, fichiers racine en lecture seule, capacités supprimées, backend interne et absence de port API publié. Le service reste fonctionnel après le durcissement.
+
+Le contrôle final Trivy a renvoyé **0** : aucun résultat HIGH ou CRITICAL n’a été détecté dans cette image à cette date avec cette base Trivy. Cela explique le pipeline vert, sans garantir l’absence de tout risque. Les étapes de création de rapports utilisent un code de sortie non bloquant pour conserver la comparaison ; seule la dernière étape applique la politique `--exit-code 1`.
+
+Les résumés et paramètres observés sont conservés dans [docs/tp3](tp3/). Les deux rapports Trivy complets sont dans l’artefact `tp3-security-reports` du run lié ci-dessus et dans le ZIP du rendu.
+
+La base, la version de Trivy et les dates du scan figurent dans `docs/tp3/trivy-version.json`. Un nouveau scan peut donner d’autres résultats si la base ou les dépôts de paquets ont évolué.

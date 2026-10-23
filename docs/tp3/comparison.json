@@ -1,0 +1,53 @@
+{
+  "before": {
+    "artifact_name": "netsecure-api:before",
+    "image_id": "sha256:fe26b23218e4f72e5fc3ceaf5059566ecb2ad8ee6153973fb85489ed7f6653c2",
+    "os": {
+      "Family": "debian",
+      "Name": "12.15"
+    },
+    "counts": {
+      "HIGH": 625,
+      "CRITICAL": 30
+    },
+    "examples": [
+      {
+        "PkgName": "libaom3",
+        "InstalledVersion": "3.6.0-1+deb12u3",
+        "Severity": "CRITICAL",
+        "VulnerabilityID": "CVE-2023-6879",
+        "FixedVersion": "",
+        "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2023-6879"
+      },
+      {
+        "PkgName": "libglib2.0-0",
+        "InstalledVersion": "2.74.6-2+deb12u9",
+        "Severity": "CRITICAL",
+        "VulnerabilityID": "CVE-2026-58016",
+        "FixedVersion": "",
+        "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-58016"
+      },
+      {
+        "PkgName": "libglib2.0-bin",
+        "InstalledVersion": "2.74.6-2+deb12u9",
+        "Severity": "CRITICAL",
+        "VulnerabilityID": "CVE-2026-58016",
+        "FixedVersion": "",
+        "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2026-58016"
+      }
+    ]
+  },
+  "after": {
+    "artifact_name": "netsecure-api:ci",
+    "image_id": "sha256:85302915060b80700ebfe28bcf55b748520986407200b424faa313af13821e36",
+    "os": {
+      "Family": "alpine",
+      "Name": "3.24.3"
+    },
+    "counts": {
+      "HIGH": 0,
+      "CRITICAL": 0
+    },
+    "examples": []
+  }
+}
