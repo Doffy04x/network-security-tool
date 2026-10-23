@@ -1,0 +1,58 @@
+{
+  "mode": "after",
+  "services": {
+    "api": {
+      "image": "netsecure-api:ci",
+      "image_id": "sha256:85302915060b80700ebfe28bcf55b748520986407200b424faa313af13821e36",
+      "uid": 10001,
+      "running": true,
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "published_ports": {},
+      "networks": [
+        "tp3-lab_backend"
+      ],
+      "mounts": []
+    },
+    "nginx": {
+      "image": "nginx/nginx-unprivileged:stable-alpine@sha256:517607ae849a46afbd400616a783e4ead0290f52d20ccc0618ccea1a49362474",
+      "image_id": "sha256:9b0b6a07e8486e8bcfb80a8f36cf8d3390413d1d3979628416be91291ef66d48",
+      "uid": 101,
+      "running": true,
+      "health": "healthy",
+      "read_only": true,
+      "cap_drop": [
+        "ALL"
+      ],
+      "security_opt": [
+        "no-new-privileges:true"
+      ],
+      "published_ports": {
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8080"
+          }
+        ]
+      },
+      "networks": [
+        "tp3-lab_backend",
+        "tp3-lab_frontend"
+      ],
+      "mounts": [
+        {
+          "destination": "/etc/nginx/nginx.conf",
+          "writable": false,
+          "type": "bind"
+        }
+      ]
+    }
+  },
+  "backend_internal": true
+}

@@ -1,0 +1,123 @@
+name: NetSecure image security
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  scan:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      API_IMAGE: netsecure-api:ci
+      TRIVY_CACHE_DIR: ${{ github.workspace }}/.cache/trivy
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Record Docker versions
+        run: |
+          mkdir -p reports
+          docker version > reports/docker-version.txt
+          docker compose version >> reports/docker-version.txt
+          git rev-parse HEAD > reports/commit.txt
+
+      - name: Build initial API image
+        run: docker build --pull -f audit/before/Dockerfile -t netsecure-api:before .
+
+      - name: Start and inspect initial Compose setup
+        run: |
+          docker compose -p tp3-before -f audit/before/compose.yaml config > reports/compose-before.yaml
+          docker compose -p tp3-before -f audit/before/compose.yaml up -d --wait --wait-timeout 90
+          docker compose -p tp3-before -f audit/before/compose.yaml ps > reports/compose-before-ps.txt
+          docker network ls > reports/networks-before.txt
+          python3 scripts/check_http.py | tee reports/http-before.txt
+          python3 scripts/check_stack.py before audit/before/compose.yaml tp3-before reports/runtime-before.json
+          docker compose -p tp3-before -f audit/before/compose.yaml logs --no-color > reports/logs-before.txt
+          docker compose -p tp3-before -f audit/before/compose.yaml down
+
+      - name: Scan initial image with pinned Trivy
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        with:
+          version: v0.76.1
+          scan-type: image
+          image-ref: netsecure-api:before
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          format: json
+          output: reports/trivy-before.json
+          exit-code: '0'
+          timeout: 10m
+
+      - name: Build hardened API image
+        run: docker build --pull -t netsecure-api:ci .
+
+      - name: Start and verify hardened Compose setup
+        run: |
+          docker compose -p tp3-lab config > reports/compose-after.yaml
+          docker compose -p tp3-lab up -d --wait --wait-timeout 90
+          docker compose -p tp3-lab ps > reports/compose-after-ps.txt
+          docker network ls > reports/networks-after.txt
+          python3 scripts/check_http.py | tee reports/http-after.txt
+          python3 scripts/check_stack.py after compose.yaml tp3-lab reports/runtime-after.json
+          docker images --digests --no-trunc > reports/images.txt
+          docker image inspect netsecure-api:before netsecure-api:ci > reports/api-images.json
+
+      - name: Scan hardened image and save JSON report
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
+        env:
+          TRIVY_SKIP_DB_UPDATE: 'true'
+        with:
+          skip-setup-trivy: 'true'
+          scan-type: image
+          image-ref: netsecure-api:ci
+          scanners: vuln
+          severity: HIGH,CRITICAL
+          format: json
+          output: reports/trivy-after.json
+          exit-code: '0'
+          timeout: 10m
+
+      - name: Compare actual scan results
+        run: |
+          trivy version --format json > reports/trivy-version.json
+          python3 scripts/compare_scans.py reports
+          cat reports/comparison.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Enforce HIGH and CRITICAL security gate
+        env:
+          TRIVY_SKIP_DB_UPDATE: 'true'
+        run: |
+          set +e
+          trivy image --scanners vuln --exit-code 1 --severity HIGH,CRITICAL --format table --output reports/trivy-after.txt netsecure-api:ci
+          scan_status=$?
+          set -e
+          printf '%s\n' "$scan_status" > reports/trivy-exit-code.txt
+          if [ -f reports/trivy-after.txt ]; then cat reports/trivy-after.txt; fi
+          exit "$scan_status"
+
+      - name: Save service logs
+        if: always()
+        run: docker compose -p tp3-lab logs --no-color > reports/logs-after.txt 2>&1
+
+      - name: Upload audit reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: tp3-security-reports
+          path: reports/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Stop lab containers
+        if: always()
+        run: |
+          docker compose -p tp3-before -f audit/before/compose.yaml down
+          docker compose -p tp3-lab down

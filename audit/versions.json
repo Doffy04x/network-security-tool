@@ -1,0 +1,41 @@
+{
+  "actions": {
+    "actions/checkout": {
+      "tag": "v7.0.1",
+      "sha": "3d3c42e5aac5ba805825da76410c181273ba90b1",
+      "release_url": "https://github.com/actions/checkout/releases/tag/v7.0.1"
+    },
+    "actions/upload-artifact": {
+      "tag": "v7.0.2",
+      "sha": "cf430e030ddbb5b0abf93d22962f4752f3646cd9",
+      "release_url": "https://github.com/actions/upload-artifact/releases/tag/v7.0.2"
+    },
+    "aquasecurity/trivy-action": {
+      "tag": "v0.36.0",
+      "sha": "ed142fd0673e97e23eac54620cfb913e5ce36c25",
+      "release_url": "https://github.com/aquasecurity/trivy-action/releases/tag/v0.36.0"
+    }
+  },
+  "images": {
+    "library/python:3.12-bookworm": {
+      "digest": "sha256:14a4933e6cef421424f7a66d89a3f4eafcbd0d90e0a822251f298e05132dc735",
+      "reference": "python:3.12-bookworm@sha256:14a4933e6cef421424f7a66d89a3f4eafcbd0d90e0a822251f298e05132dc735"
+    },
+    "library/python:3.12-alpine": {
+      "digest": "sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d",
+      "reference": "python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d"
+    },
+    "library/nginx:stable-alpine": {
+      "digest": "sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951",
+      "reference": "nginx:stable-alpine@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951"
+    },
+    "nginx/nginx-unprivileged:stable-alpine": {
+      "digest": "sha256:517607ae849a46afbd400616a783e4ead0290f52d20ccc0618ccea1a49362474",
+      "reference": "nginx/nginx-unprivileged:stable-alpine@sha256:517607ae849a46afbd400616a783e4ead0290f52d20ccc0618ccea1a49362474"
+    }
+  },
+  "trivy": {
+    "version": "v0.76.1",
+    "url": "https://github.com/aquasecurity/trivy/releases/tag/v0.76.1"
+  }
+}

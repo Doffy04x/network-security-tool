@@ -1,0 +1,59 @@
+{
+  "mode": "before",
+  "services": {
+    "api": {
+      "image": "netsecure-api:before",
+      "image_id": "sha256:fe26b23218e4f72e5fc3ceaf5059566ecb2ad8ee6153973fb85489ed7f6653c2",
+      "uid": 0,
+      "running": true,
+      "health": "healthy",
+      "read_only": false,
+      "cap_drop": null,
+      "security_opt": null,
+      "published_ports": {
+        "8000/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8000"
+          }
+        ]
+      },
+      "networks": [
+        "tp3-before_backend",
+        "tp3-before_frontend"
+      ],
+      "mounts": []
+    },
+    "nginx": {
+      "image": "nginx:stable-alpine@sha256:47928bf67eb62a1863cb08d9ecb52d3e704304ba614eaee17884204677702951",
+      "image_id": "sha256:88f52f3d58a505b7e1ad96ca6969478517bcccb58418e75a54223271a64da7df",
+      "uid": 0,
+      "running": true,
+      "health": null,
+      "read_only": false,
+      "cap_drop": null,
+      "security_opt": null,
+      "published_ports": {
+        "80/tcp": null,
+        "8080/tcp": [
+          {
+            "HostIp": "127.0.0.1",
+            "HostPort": "8080"
+          }
+        ]
+      },
+      "networks": [
+        "tp3-before_backend",
+        "tp3-before_frontend"
+      ],
+      "mounts": [
+        {
+          "destination": "/etc/nginx/nginx.conf",
+          "writable": false,
+          "type": "bind"
+        }
+      ]
+    }
+  },
+  "backend_internal": false
+}
